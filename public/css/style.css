@@ -1,0 +1,34 @@
+body {
+  background-color: #FAFAFA;
+}
+
+#chatHistory {
+  border: 0.05em solid cadetblue;
+  padding: 10px 5px;
+  width: 500px;
+  border-radius: 5px;
+}
+
+.chat-box {
+  border-radius: 10px;
+/*   display: block; */
+  padding: 3px 6px;
+  border: 0.03em solid grey;
+/*   width: 220px; */
+  width: auto;
+  margin-bottom: 5px;
+}
+
+.chat-left {
+/*   text-align: left; */
+  color: #2962FF;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.chat-right {
+/*   text-align: right; */
+  color: #FF1744;
+  display: flex;
+  justify-content: flex-end;
+}

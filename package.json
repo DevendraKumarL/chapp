@@ -1,0 +1,21 @@
+{
+  "name": "chatapp-socket.io-node",
+  "version": "1.0.0",
+  "description": "A simple chat app using socket.io running on a node",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.16.2",
+    "socket.io": "^2.0.4",
+    "ws": "^3.3.3",
+    "ejs": "^2.5.7"
+  },
+  "engines": {
+    "node": "8.x"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/chapp"
+  }
+}
