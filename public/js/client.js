@@ -29,9 +29,9 @@ let players = {
 
 $(() => {
   takeInputName();
-  var socket = io.connect();
+  let socket = io.connect();
 
-  socket.on('connect', function () {
+  socket.on('connect', () => {
     console.log('::Client::socket.io::connection Client connected to websocket server... ');
     let details = {
       roomname: room,
@@ -40,7 +40,7 @@ $(() => {
     socket.emit('room', details);
   });
 
-  socket.on('join room', function (senderId) {
+  socket.on('join room', (senderId) => {
     console.log('::Client::socket.io::join room socketId: ', senderId);
     if (players.player1 === '') {
       console.log('Player1 joined room');
@@ -56,7 +56,7 @@ $(() => {
     }
   });
 
-  socket.on('confirm player2', function (player2Id) {
+  socket.on('confirm player2', (player2Id) => {
       console.log('::Client::socket.io::confirm player2 id: ', player2Id);
       if (players.player2 === '') {
         players.player2 = player2Id;
@@ -64,7 +64,7 @@ $(() => {
       }
   });
 
-  socket.on('msg receive event', function (msg) {
+  socket.on('msg receive event', (msg) => {
       console.log('::Client::socket.io::msg receive event Message received: ', msg.msg, ' from: ', msg.senderName);
       if (msg.sender !== players.player1) {
         $('#chatHistory').show();
@@ -73,11 +73,11 @@ $(() => {
       }
   });
 
-  socket.on('no opponent', function (id) {
+  socket.on('no opponent', (id) => {
      console.log('::Client::socket.io::no opponent id:', id);
   });
 
-  socket.on('cannot join', function (msg) {
+  socket.on('cannot join', (msg) => {
       console.log('::Client::socket.io::cannot join msg: ', msg);
       alert(msg);
       socket.close();
@@ -85,7 +85,7 @@ $(() => {
       $('#sendBtn').remove();
   });
 
-  $('#sendBtn').click(function () {
+  $('#sendBtn').click(() => {
     let msg = $('#messageInput').val(),
         data = {
           receiver: players.player2,

@@ -11,23 +11,20 @@ body {
 
 .chat-box {
   border-radius: 10px;
-/*   display: block; */
   padding: 3px 6px;
   border: 0.03em solid grey;
-/*   width: 220px; */
   width: auto;
+  min-width:200px;
   margin-bottom: 5px;
 }
 
 .chat-left {
-/*   text-align: left; */
   color: #2962FF;
   display: flex;
   justify-content: flex-start;
 }
 
 .chat-right {
-/*   text-align: right; */
   color: #FF1744;
   display: flex;
   justify-content: flex-end;

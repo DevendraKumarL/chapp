@@ -13,7 +13,7 @@ io.on('connection', (socket) => {
 
   socket.on('room', (details) => {
     console.log('::Server::socket.io::room ', details.roomname, ' from: ', socket.id, ' username: ', details.username);
-    var player = {
+    let player = {
       id: socket.id,
       roomname: details.roomname,
       username: details.username,
@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
   socket.on('confirm', (receiverId) => {
     console.log('::Server::socket.io.confirm id: ', receiverId);
     if (receiverId !== socket.id) {
-      var sockt = util.checkBothPlayersInSameRoom(Players, socket, receiverId);
+      let sockt = util.checkBothPlayersInSameRoom(Players, socket, receiverId);
       if (sockt === false) {
         return;
       }
@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
   socket.on('msg send event', (msg) => {
     console.log('::Server::socket.io::msg send event Message received: ', msg.msg, ' from: ', socket.id, ' username: ', msg.senderName);
     msg = JSON.parse(msg);
-    var sockt = util.checkBothPlayersInSameRoom(Players, socket, msg.receiver);
+    let sockt = util.checkBothPlayersInSameRoom(Players, socket, msg.receiver);
     if (sockt === false) {
         return;
     }
