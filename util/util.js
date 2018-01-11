@@ -1,51 +1,52 @@
-let utilFunctions = module.exports = {};
+let exportUtil = module.exports = {};
 
 // util functions
-utilFunctions.checkBothPlayersInSameRoom = (Players, socket, receiverId) => {
-  let roomname1,
-      roomname2, socket2;
-  for (let i = 0; i < Players.length; ++i) {
-      if (socket.id === Players[i].id) {
-          roomname1 = Players[i].roomname;
-          break;
-      }
-  }
-  console.log('::Server::socket.io::msg send event sender roomname: ', roomname1);
-  for (let i = 0; i < Players.length; ++i) {
-      if (receiverId === Players[i].id) {
-          roomname2 = Players[i].roomname;
-          socket2 = Players[i].socket;
-          break;
-      }
-  }
-  console.log('::Server::socket.io::msg send event receiver roomname: ', roomname2);
-
-  if (roomname1 !== roomname2) {
-      socket.emit('no opponent', receiverId);
-      return false;
-  }
-  return socket2;
+exportUtil.checkBothPlayersInSameRoom = (Players, socket, receiverId) => {
+    let roomName1,
+        roomName2, socket2;
+    for (let i = 0; i < Players.length; ++i) {
+        if (socket.id === Players[i].id) {
+            roomName1 = Players[i].roomName;
+            break;
+        }
+    }
+    for (let i = 0; i < Players.length; ++i) {
+        if (receiverId === Players[i].id) {
+            roomName2 = Players[i].roomName;
+            socket2 = Players[i].socket;
+            break;
+        }
+    }
+    console.log('::checkBothPlayersInSameRoom:: roomName1: ', roomName1, ' roomName2: ', roomName2);
+    if (roomName1 !== roomName2) {
+        socket.emit('no opponent', receiverId);
+        return false;
+    }
+    return socket2;
 };
 
-utilFunctions.areTwoPlayersInRoom = (Players, player) => {
-  let count = 0;
-  for (let i = 0; i < Players.length; ++i) {
-      if (Players[i].roomname === player.roomname) {
-          count++;
-      }
-      if (count >= 2) {
-          return true;
-      }
-  }
-  return false;
+exportUtil.areTwoPlayersInRoom = (Players, player) => {
+    let count = 0;
+    for (let i = 0; i < Players.length; ++i) {
+        if (Players[i].roomName === player.roomName) {
+            count++;
+        }
+        if (count >= 2) {
+            return true;
+        }
+    }
+    return false;
 };
 
-utilFunctions.removePlayer = (Players, socketId) => {
-  for (let i = 0; i < Players.length; ++i) {
-    if (Players[i].id === socketId) {
-      Players.splice(i, 1);
-      return Players;
-    } 
-  }
-  return Players;
+exportUtil.removePlayer = (Players, socketId) => {
+    for (let i = 0; i < Players.length; ++i) {
+        console.log('::Server::socket.io::util::removePlayer Player: ', Players[i].id, ' socketId: ', socketId);
+        if (Players[i].id === socketId) {
+            console.log('::Server::socket.io::util::removePlayer Removing playerId: ', socketId);
+            Players.splice(i, 1);
+            return Players;
+        }
+    }
+    console.log('::Server::socket.io::util::removePlayer No players removed');
+    return Players;
 };

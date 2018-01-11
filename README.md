@@ -7,7 +7,6 @@ A simple chat app using socket.io running on a node.
 
 Find out more [about Glitch](https://glitch.com/about).
 
-Made by [Fog Creek](https://fogcreek.com/)
 -------------------
 
 \ ゜o゜)ノ
