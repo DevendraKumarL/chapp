@@ -4,7 +4,8 @@
   "description": "A simple chat app using socket.io running on a node",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "express": "^4.16.2",

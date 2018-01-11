@@ -18,7 +18,6 @@ exportUtil.checkBothPlayersInSameRoom = (Players, socket, receiverId) => {
         }
     }
     console.log('::checkBothPlayersInSameRoom:: roomName1: ', roomName1, ' roomName2: ', roomName2);
-
     if (roomName1 !== roomName2) {
         socket.emit('no opponent', receiverId);
         return false;
