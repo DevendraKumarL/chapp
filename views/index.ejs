@@ -4,14 +4,32 @@
     <title>chapp!</title>
 </head>
 <body>
-    <div class="container">
-        <h1>chapp - A simple chat app made using socket.io and node</h1>
-        <input id="messageInput" autocomplete="off" />&nbsp;&nbsp;
-        <button id="sendBtn">Send</button>
-        <br><br>
-        <span>Chat history</span>
-        <div id="chatHistory" style="display:none;">
-            <div id="history"></div>
+    <div class="container" id="appContainer">
+        <!--<h3>chapp - A simple chat app made using socket.io and node</h3>-->
+        <div id="chatDiv">
+            <div id="chatRoomDetails" class="card card-3">
+                <div>
+                    <div id="chatRoomLabel">ChatRoom: </div>
+                    <div id="chatRoomName"></div>
+                </div>
+                <div class="clearfix"></div>
+                <div>
+                    <div id="statusLabel">Status: </div>
+                    <div id="chatRoomStatus"></div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="card card-3" id="sendMessageDiv">
+                <div class="flex-container">
+                    <input id="messageInput" autocomplete="off" placeholder="Message..."/>&nbsp;&nbsp;
+                    <button id="sendBtn" class="custom-btn">Send</button>
+                </div>
+            </div>
+        </div>
+        <div id="chatContainer">
+            <div id="chatHistory" style="display:none;">
+                <div id="history"></div>
+            </div>
         </div>
     </div>
 </body>

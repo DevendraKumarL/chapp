@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "stop": "python util/node-task-kill/kill.py"
   },
   "dependencies": {
     "express": "^4.16.2",

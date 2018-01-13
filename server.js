@@ -6,49 +6,52 @@ let express = require('express'),
 
 let port = process.env.PORT || 5001;
 
-let Players = [];
+let ChatRoomUsers = [];
+let AllActiveChatRoomHistory = [];
 
 io.on('connection', (socket) => {
     console.log('::Server::socket.io::connection A client connected... Id: ', socket.id);
 
-    socket.on('room', (roomDetails) => {
-        console.log('::Server::socket.io::room ', roomDetails.roomName, ' from: ', socket.id);
+    socket.on('room', (clientDetails) => {
+        console.log('::Server::socket.io::room ', clientDetails.roomName, ' from: ', socket.id);
         let player = {
             id: socket.id,
-            roomName: roomDetails.roomName,
-            socket: socket
+            roomName: clientDetails.roomName,
+            socket: socket,
+            username: clientDetails.username
         };
-        if (util.areTwoPlayersInRoom(Players, player)) {
-            socket.emit('cannot join', 'Game Room is already occupied by two players.');
+        if (util.areTwoPlayersInRoom(ChatRoomUsers, player)) {
+            socket.emit('cannot join', 'Game Room is already occupied by two users in the ChatRoom.');
             return;
         }
 
-        socket.join(roomDetails.roomName);
-        Players.push(player);
-        io.in(roomDetails.roomName).emit('join room', socket.id);
-        console.log('::Server::socket.io::room Number of Players: ', Players.length);
+        socket.join(clientDetails.roomName);
+        ChatRoomUsers.push(player);
+        io.in(clientDetails.roomName).emit('join room', socket.id);
+        console.log('::Server::socket.io::room Number of ChatRoomUsers: ', ChatRoomUsers.length);
     });
 
 	socket.on('confirm', (receiverId) => {
 	    console.log('::Server::socket.io.confirm id: ', receiverId);
 	    if (receiverId !== socket.id) {
-	        let sockt = util.checkBothPlayersInSameRoom(Players, socket, receiverId);
+	        let sockt = util.checkBothPlayersInSameRoom(ChatRoomUsers, socket, receiverId);
 	        if (sockt === false) {
+	        	console.log('::Server::socket.io.confirm sockt is FALSE');
 	            return;
 	        }
-	        sockt.emit('confirm player2', socket.id);
+	        sockt.emit('confirm user2', socket.id);
 	    }
 	});
 
-	socket.on('msg send event', (msg) => {
-	    console.log('::Server::socket.io::msg send event Message received: ', msg, ' from: ', socket.id);
-	    msg = JSON.parse(msg);
+	socket.on('msg send event', (msgDetails) => {
+	    console.log('::Server::socket.io::msg send event Message received: ', msgDetails, ' from: ', socket.id);
+	    msgDetails = JSON.parse(msgDetails);
 	    let newMsg = {
 	        sender: socket.id,
-            msg: msg.msg,
-            senderName: msg.senderName
+            msg: msgDetails.msg,
+            senderName: msgDetails.senderName
 	    };
-	    let sockt = util.checkBothPlayersInSameRoom(Players, socket, msg.receiver);
+	    let sockt = util.checkBothPlayersInSameRoom(ChatRoomUsers, socket, msgDetails.receiver);
 	    if (sockt === false) {
 	        return;
 	    }
@@ -56,9 +59,9 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('disconnect', () => {
-	    Players = util.removePlayer(Players, socket.id);
+	    ChatRoomUsers = util.removePlayer(ChatRoomUsers, socket.id);
 	    console.log('::Server::socket.io::disconnect A client disconnected... Id: ', socket.id);
-	    console.log('Number of players: ', Players.length);
+	    console.log('Number of ChatRoomUsers: ', ChatRoomUsers.length);
 	});
 });
 
