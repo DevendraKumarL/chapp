@@ -2,16 +2,55 @@
 <html>
 <head>
     <title>chapp!</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.js" type="text/javascript"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>chapp - A simple chat app made using socket.io and node</h1>
-        <input id="messageInput" autocomplete="off" />&nbsp;&nbsp;
-        <button id="sendBtn">Send</button>
-        <br><br>
-        <span>Chat history</span>
-        <div id="chatHistory" style="display:none;">
-            <div id="history"></div>
+    <div class="container" id="appContainer">
+        <!--<h3>chapp - A simple chat app made using socket.io and node</h3>-->
+        <div id="chatDiv">
+            <div id="chatRoomDetails" class="card">
+                <div>
+                    <div class="chatLabel">ChatRoom: </div>
+                    <div id="chatRoomName" class="chatLabelText"></div>
+                </div>
+                <div class="clearfix"></div>
+                <div>
+                    <div class="chatLabel">Status: </div>
+                    <div id="chatRoomStatus" class="chatLabelText"></div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="card" id="sendMessageDiv">
+                <div class="flex-container">
+                    <textarea id="messageInput" rows="5" placeholder="Message..."></textarea>
+                </div>
+                <button id="sendBtn" class="custom-btn">Send</button>
+            </div>
+            <div class="cleafix"></div>
+            <div class="card" id="usersInRoomStatus">
+                <div>
+                    <div class="headLabel">User in Room</div>
+                    <div class="headLabel">Online Status</div>
+                </div>
+                <div>
+                    <div id="user1"></div>
+                    <div id="user1Status" class="chatLabelText">
+                        <!--<i class="fa fa-check-circle-o" style="color: green;"></i>-->
+                    </div>
+                </div>
+                <div>
+                    <div id="user2"></div>
+                    <div id="user2Status" class="chatLabelText">
+                        <!--<i class="fa fa-times-circle" style="color: red;"></i>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="chatContainer">
+            <div id="chatHistory" class="card">
+                <span style="display: block; text-align: center;">Conversion History</span>
+                <div id="history"></div>
+            </div>
         </div>
     </div>
 </body>

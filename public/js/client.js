@@ -1,5 +1,7 @@
 let socket;
 
+let chatRoomReady = false;
+
 let roomName,
     password,
     room,
@@ -16,6 +18,7 @@ function takeInputName() {
     username = prompt('Enter username');
     if (!username) {
         alert('Username not provided, Reload page to start again');
+        $('#messageInput').remove();
         return;
     }
     room = roomName + ':' + password;
@@ -23,70 +26,110 @@ function takeInputName() {
 }
 
 function disableInput() {
-    $('#messageInput').remove();
-    $('#sendBtn').remove();
+    $('#messageInput').prop('disabled', true);
+    $('#sendBtn').prop('disabled', true);
 }
 
-let players = {
-    player1: '',
-    player2: ''
+let usersInRoom = {
+    user1: null,
+    user2: null
 };
+
+let userNames = {
+    username1: null,
+    username2: null
+};
+
+let online = "<i class='fa fa-check-circle-o' style='color:green'></i>",
+    offline = "<i class='fa fa-times-circle' style='color:red'></i>";
+
+let messageHistory = {};
 
 function makeSocketConnectionToServer() {
     socket = io.connect();
 
     socket.on('connect', () => {
         console.log('::Client::socket.io::connection Client connected to socket.io server... ');
-        let details = {
+        let clientDetails = {
             roomName: room,
             username: username
         };
-        socket.emit('room', details);
+        socket.emit('room', clientDetails);
     });
 
-    socket.on('join room', (senderId) => {
-        console.log('::Client::socket.io::join room socketId: ', senderId);
-        if (players.player1 === '') {
-            console.log('Player1 joined room');
-            players.player1 = senderId;
-            console.log('players: ', players);
+    socket.on('join room', (data) => {
+        console.log('::Client::socket.io::join room data: ', data);
+        if (usersInRoom.user1 === null) {
+            console.log('User1 joined room');
+            usersInRoom.user1 = data.senderId;
+            console.log('usersInRoom: ', usersInRoom);
+            $('#chatRoomName').html('<b><u>' + room.split(':')[0] + '</u></b>');
+            $('#user1').html('<b>' + username + '</b>');
+            userNames.username1 = username;
+            $('#user1Status').html(online);
+            $('#user2Status').html(offline);
             return;
         }
-        if (players.player1 !== '') {
-            console.log('Player2 joined room');
-            players.player2 = senderId;
-            socket.emit('confirm', senderId);
-            console.log('players: ', players);
+        if (usersInRoom.user1 !== null) {
+            console.log('User2 joined room');
+            usersInRoom.user2 = data.senderId;
+            socket.emit('confirm', data.senderId);
+            console.log('usersInRoom: ', usersInRoom);
+            $('#user2').html('<b>' + data.username + '</b>');
+            userNames.username2 = data.username;
+            $('#user2Status').html(online);
         }
     });
 
-    socket.on('confirm player2', (player2Id) => {
-        console.log('::Client::socket.io::confirm player2 id: ', player2Id);
-        if (players.player2 === '') {
-            players.player2 = player2Id;
-            console.log('players: ', players);
+    socket.on('confirm user2', (data) => {
+        console.log('::Client::socket.io::confirm user2 id: ', data.user2Id);
+        if (usersInRoom.user2 === null) {
+            usersInRoom.user2 = data.user2Id;
+            console.log('::Client::socket.io::confirm user2 usersInRoom: ', usersInRoom);
+            console.log('::Client::socket.io::confirm user2 chatHistory: ', data.chatHistory);
+            $('#user2').html('<b>' + data.username + '</b>')
+            userNames.username2 = data.username;
+            $('#user2Status').html(online);
+            // TODO: process the chatHistory and show it to this user
         }
     });
 
-    socket.on('msg receive event', (msg) => {
-        console.log('::Client::socket.io::msg receive event Message received: ', msg.msg, ' from: ', msg.senderName);
-        if (msg.sender !== players.player1) {
+    socket.on('msg receive event', (msgDetails) => {
+        console.log('::Client::socket.io::msgDetails receive event Message received: ', msgDetails.msg, ' from: ', msgDetails.senderName);
+        if (msgDetails.sender !== usersInRoom.user1) {
             $('#chatHistory').show();
-            let chatBoxElement = $('<div>').text(msg.senderName +': ' + msg.msg).addClass('chat-box');
-            $('#history').append($('<div>').addClass('chat-right').append(chatBoxElement));
+            let usernameEle = $('<span>').text(msgDetails.senderName).addClass('receiverUsernameEle');
+            let messageEle = $('<span>').text(msgDetails.msg).css('display', 'block');
+            let chatBoxElement = $('<div>').append(usernameEle).append(messageEle).addClass('chat-box');
+            let ele = $('<div>').addClass('chat-right').append(chatBoxElement);
+            $('#history').prepend(ele);
         }
     });
 
-    // socket.on('no opponent', (id) => {
-    //     console.log('::Client::socket.io::no opponent id:', id);
-    // });
-    //
-    // socket.on('cannot join', (msg) => {
-    //     console.log('::Client::socket.io::cannot join msg: ', msg);
-    //     alert(msg);
-    //     socket.close();
-    //     disableInput();
-    // });
+    socket.on('no opponent', (id) => {
+        console.log('::Client::socket.io::no opponent id:', id);
+    });
+
+    socket.on('cannot join', (msg) => {
+        console.log('::Client::socket.io::cannot join msg: ', msg);
+        $('#chatRoomStatus').html('<u><i>' + msg + '</i></u>');
+        socket.close();
+        disableInput();
+        clearInterval(chatRoomReadyStatusInterval);
+    });
+
+    socket.on('user left', (socketId) => {
+        console.log('::Client::socket.io::user left socketId: ', socketId);
+        if (usersInRoom.user1 === socketId) {
+            console.log('::Client::socket.io::user left userName: ', userNames.username1);
+            $('#user1Status').html(offline);
+            return;
+        }
+        if (usersInRoom.user2 === socketId) {
+            console.log('::Client::socket.io::user left userName: ', userNames.username2);
+            $('#user2Status').html(offline);
+        }
+    });
 }
 
 $(() => {
@@ -103,18 +146,56 @@ $(() => {
     $('#sendBtn').click(() => {
       let msgEle = $('#messageInput'),
           data = {
-              receiver: players.player2,
+              receiver: usersInRoom.user2,
               msg: msgEle.val(),
-              senderName: username
+              senderName: username,
+              roomName: room
           };
 
       data = JSON.stringify(data);
-      console.log('::Client:: Sending message: ', data, ' to: ', players.player2);
+      console.log('::Client:: Sending message: ', data, ' to: ', usersInRoom.user2);
       socket.emit('msg send event', data);
 
       $('#chatHistory').show();
-      let chatBoxElement = $('<div>').text(username + ': ' + msgEle.val()).addClass('chat-box');
-      $('#history').append($('<div>').addClass('chat-left').append(chatBoxElement));
+      let usernameEle = $('<span>').text(username).addClass('senderUsernameEle');
+      let messageEle = $('<span>').text(msgEle.val()).css('display', 'block');
+      let chatBoxElement = $('<div>').append(usernameEle).append(messageEle).addClass('chat-box');
+      let ele = $('<div>').addClass('chat-left').append(chatBoxElement);
+      $('#history').prepend(ele);
       msgEle.val('');
   });
+});
+
+let chatRoomReadyStatusInterval;
+
+function updateChatRoomReadyStatus() {
+    if (usersInRoom.user1 && usersInRoom.user2) {
+        chatRoomReady = true;
+        clearInterval(chatRoomReadyStatusInterval);
+        $('#chatRoomStatus').html('<u><i>Start chatting!</i></u>');
+        $('#messageInput').prop('disabled', false);
+        $('#sendBtn').prop('disabled', false);
+        return;
+    }
+    if (!chatRoomReady) {
+        $('#messageInput').prop('disabled', true);
+        $('#sendBtn').prop('disabled', true);
+        $('#chatRoomStatus').html('<u><i>Waiting for other user to join chat room...</i></u>');
+        chatRoomReadyStatusInterval = setTimeout(updateChatRoomReadyStatus, 1000);
+    }
+}
+
+$(() => {
+    chatRoomReadyStatusInterval = setTimeout(updateChatRoomReadyStatus, 1000);
+});
+
+let chatDivPosition = $('#chatDiv').offset();
+
+$(window).scroll(() => {
+    if ($(window).scrollTop() > chatDivPosition.top) {
+        $('#chatDiv').css('position', 'fixed');
+    }
+    else {
+        $('#chatDiv').css('position', 'static');
+    }
 });
