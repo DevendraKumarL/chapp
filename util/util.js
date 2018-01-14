@@ -1,7 +1,7 @@
 let exportUtil = module.exports = {};
 
 // util functions
-exportUtil.checkBothPlayersInSameRoom = (ChatRoomUsers, socket, receiverId) => {
+exportUtil.checkBothUsersInSameRoom = (ChatRoomUsers, socket, receiverId) => {
     let roomName1,
         roomName2, socket2;
     for (let i = 0; i < ChatRoomUsers.length; ++i) {
@@ -17,7 +17,7 @@ exportUtil.checkBothPlayersInSameRoom = (ChatRoomUsers, socket, receiverId) => {
             break;
         }
     }
-    console.log('::checkBothPlayersInSameRoom:: roomName1: ', roomName1, ' roomName2: ', roomName2);
+    console.log('::checkBothUsersInSameRoom:: roomName1: ', roomName1, ' roomName2: ', roomName2);
     if (roomName1 !== roomName2) {
         socket.emit('no opponent', receiverId);
         return false;
@@ -25,7 +25,7 @@ exportUtil.checkBothPlayersInSameRoom = (ChatRoomUsers, socket, receiverId) => {
     return socket2;
 };
 
-exportUtil.areTwoPlayersInRoom = (ChatRoomUsers, player) => {
+exportUtil.areTwoUsersInRoom = (ChatRoomUsers, player) => {
     let count = 0;
     for (let i = 0; i < ChatRoomUsers.length; ++i) {
         if (ChatRoomUsers[i].roomName === player.roomName) {
@@ -38,15 +38,46 @@ exportUtil.areTwoPlayersInRoom = (ChatRoomUsers, player) => {
     return false;
 };
 
-exportUtil.removePlayer = (ChatRoomUsers, socketId) => {
+exportUtil.removeUserFromServer = (ChatRoomUsers, socketId) => {
     for (let i = 0; i < ChatRoomUsers.length; ++i) {
-        console.log('::Server::socket.io::util::removePlayer Player: ', ChatRoomUsers[i].id, ' socketId: ', socketId);
         if (ChatRoomUsers[i].id === socketId) {
-            console.log('::Server::socket.io::util::removePlayer Removing playerId: ', socketId);
+            console.log('::Server::socket.io::util::removeUserFromServer Removing playerId: ', socketId);
             ChatRoomUsers.splice(i, 1);
             return ChatRoomUsers;
         }
     }
-    console.log('::Server::socket.io::util::removePlayer No usersInRoom removed');
+    console.log('::Server::socket.io::util::removeUserFromServer No usersInRoom removed');
     return ChatRoomUsers;
+};
+
+exportUtil.getRoomName = (ChatRoomUsers, socketId) => {
+    for (let i = 0; i < ChatRoomUsers.length; ++i) {
+        if (ChatRoomUsers[i].id === socketId) {
+            let roomName = ChatRoomUsers[i].roomName;
+            console.log('::Server::socket.io::util::getRoomName user: ',
+                ChatRoomUsers[i].username + ' is in room: ', roomName);
+            return roomName;
+        }
+    }
+    return null;
+};
+
+exportUtil.checkRoomIsEmpty = (ChatRoomUsers, roomName) => {
+    for (let i = 0; i < ChatRoomUsers.length; ++i) {
+        if (ChatRoomUsers[i].roomName === roomName) {
+            console.log('::Server::socket.io::util::checkRoomIsEmpty user: ', ChatRoomUsers[i].username,
+                ' is still in room: ' + ChatRoomUsers[i].roomName);
+            return false;
+        }
+    }
+    return true;
+};
+
+exportUtil.getUserName = (ChatRoomUsers, socketId) => {
+    for (let i = 0; i < ChatRoomUsers.length; ++i) {
+        if (ChatRoomUsers[i].id === socketId) {
+            return ChatRoomUsers[i].username;
+        }
+    }
+    return null;
 };
